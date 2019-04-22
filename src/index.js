@@ -1,10 +1,8 @@
-import * as fs from 'fs';
-const editor = async (req, res, firebase_key) => {
+var fs = require('fs');
+const graphqlEditor = async function (req, res, next){
     fs.readFile(__dirname + '/graphi.html', 'utf8', (err, text) => {
-        text = text.replace('FIREBASE_KEY', '')
+        text = text.replace('FIREBASE_KEY', process.env.FIREBASE_KEY)
         res.send(text);
     })
 }
-module.exports = {
-    editor
-}
+module.exports = graphqlEditor
