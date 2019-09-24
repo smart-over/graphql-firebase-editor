@@ -1,7 +1,6 @@
 <!DOCTYPE html>
-<title>Consumer GraphQL</title>
+<title>GraphQL Editor</title>
 <html>
-
 <head>
   <style>
     body {
@@ -12,7 +11,8 @@
     }
 
     #graphiql {
-      height: 100vh;
+      height: calc(100vh - 34px);
+      margin-top: 33px;
     }
 
     .jwt-token {
@@ -21,6 +21,11 @@
       font-family: system, -apple-system, 'San Francisco', '.SFNSDisplay-Regular', 'Segoe UI', Segoe, 'Segoe WP', 'Helvetica Neue', helvetica, 'Lucida Grande', arial, sans-serif;
       padding: 7px 14px 6px;
       font-size: 14px;
+      position: absolute;
+      z-index: 9;
+      left: 0;
+      right: 0;
+      top: 0;
     }
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/graphiql/0.10.2/graphiql.css" />
@@ -32,7 +37,14 @@
 
 <body>
   <div class="jwt-token">
-    Current Token: <input id="jwt-token" placeholder="JWT Token goes here">
+    Language:
+    <select id="language">
+      <option value="">Default</option>
+      <option value="en">English</option>
+      <option value="tr">Türkçe</option>
+      <option value="es">Spanish</option>
+    </select>
+    Token: <input id="jwt-token" placeholder="JWT Token goes here">
     <input id="email" placeholder="Email">
     <input id="password" type="password" placeholder="Password">
     <button type="button" onclick="login()">Get token</button>
@@ -54,6 +66,9 @@
         if (response.idToken) {
           localStorage.setItem('graphiql:jwtToken', response.idToken);
           document.getElementById('jwt-token').value = response.idToken;
+        } else {
+          alert('Login error')
+          console.log(response)
         }
       });
     }
@@ -64,16 +79,19 @@
     document.getElementById('password').value = localStorage.getItem('password');
     function graphQLFetcher(graphQLParams) {
       const jwtToken = document.getElementById('jwt-token').value;
+      const language = document.getElementById('language').value;
       let headers = {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Locale': language ? language : null
       };
       if (jwtToken) {
         localStorage.setItem('graphiql:jwtToken', jwtToken);
         headers = {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'Authorization': jwtToken ? `Bearer ${jwtToken}` : null
+          'Authorization': jwtToken ? `Bearer ${jwtToken}` : null,
+          'Locale': language ? language : null
         };
       }
       return fetch('/graphql', {
